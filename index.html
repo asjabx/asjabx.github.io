@@ -4,140 +4,833 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>共享相册</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+        
+        .login-section {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            max-width: 400px;
+            margin: 50px auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .login-section h2 {
+            margin-bottom: 20px;
+            color: #3498db;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .button-group button {
+            flex: 1;
+        }
+        
+        .button-group button.secondary {
+            background-color: #95a5a6;
+        }
+        
+        .button-group button.secondary:hover {
+            background-color: #7f8c8d;
+        }
+        
+        .message {
+            margin-top: 15px;
+            color: #e74c3c;
+            text-align: center;
+        }
+        
+        #main-screen {
+            display: none;
+        }
+        
+        header {
+            background-color: #3498db;
+            color: white;
+            padding: 15px 0;
+            margin-bottom: 20px;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logout-btn {
+            background-color: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .logout-btn:hover {
+            background-color: rgba(255,255,255,0.3);
+        }
+        
+        nav {
+            background-color: white;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .nav-btn {
+            background: none;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            color: #666;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .nav-btn.active {
+            color: #3498db;
+            border-bottom-color: #3498db;
+        }
+        
+        .tab-content {
+            display: none;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .filter-group select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .photo-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        
+        .photo-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        
+        .photo-item.selected {
+            border: 3px solid #27ae60;
+        }
+        
+        .checkbox {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .photo-item:hover .checkbox {
+            display: block;
+        }
+        
+        .photo-item.selected .checkbox {
+            background-color: #27ae60;
+            border-color: #27ae60;
+        }
+        
+        .media-type {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        
+        .overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            color: white;
+            padding: 10px;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .photo-item:hover .overlay {
+            opacity: 1;
+        }
+        
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .upload-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .preview-item {
+            position: relative;
+        }
+        
+        .preview-item img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        
+        .preview-item .remove {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .upload-options {
+            margin-bottom: 20px;
+        }
+        
+        .upload-options input,
+        .upload-options select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .viewer-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .viewer-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 80%;
+        }
+        
+        .viewer-image {
+            max-width: 100%;
+            max-height: 80vh;
+        }
+        
+        .viewer-video {
+            max-width: 100%;
+            max-height: 80vh;
+        }
+        
+        .viewer-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        
+        .viewer-toolbar {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 1001;
+        }
+        
+        .viewer-toolbar button {
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .viewer-toolbar button.danger {
+            background-color: #e74c3c;
+        }
+        
+        .viewer-info {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 1001;
+        }
+        
+        .viewer-nav {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            z-index: 1001;
+        }
+        
+        .viewer-nav button {
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            padding: 20px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        
+        .album-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .album-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .album-cover {
+            height: 150px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+        
+        .album-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .album-info {
+            padding: 15px;
+        }
+        
+        .album-info h4 {
+            margin-bottom: 5px;
+        }
+        
+        .album-info p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .album-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .album-actions button {
+            flex: 1;
+            padding: 8px;
+            font-size: 14px;
+        }
+        
+        .admin-section {
+            margin-bottom: 30px;
+        }
+        
+        .admin-section h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .user-list {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .user-item:last-child {
+            border-bottom: none;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .username {
+            font-weight: bold;
+        }
+        
+        .role {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        
+        .role.admin {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .role.user {
+            background-color: #95a5a6;
+            color: white;
+        }
+        
+        .status {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        
+        .status.approved {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        .status.pending {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .status.rejected {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .activity-list {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .activity-item {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .action {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .meta {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat-card {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card .label {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .modal-content input,
+        .modal-content textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .modal-content textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        
+        .selection-tools {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .selection-tools button {
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+        
+        .selection-tools button.danger {
+            background-color: #e74c3c;
+        }
+        
+        .selection-tools button.secondary {
+            background-color: #95a5a6;
+        }
+        
+        .upload-progress {
+            margin-top: 15px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-bar .fill {
+            height: 100%;
+            background-color: #3498db;
+            transition: width 0.3s;
+        }
+        
+        @media (max-width: 768px) {
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-group {
+                flex-direction: column;
+            }
+            
+            .photo-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            .nav-btn {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div id="app">
-        <div id="login-screen" class="screen">
-            <div class="login-container">
-                <h1>共享相册</h1>
-                <div id="login-form">
-                    <input type="text" id="username" placeholder="用户名" autocomplete="username">
-                    <input type="password" id="password" placeholder="密码" autocomplete="current-password">
-                    <input type="text" id="nickname" placeholder="昵称（注册时填写）" style="display:none;">
-                    <div class="button-group">
-                        <button onclick="login()">登录</button>
-                        <button onclick="showRegister()" class="secondary">注册</button>
-                    </div>
-                    <p id="login-message" class="message"></p>
+    <div class="container">
+        <div id="login-screen">
+            <div class="login-section">
+                <h2>登录</h2>
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" id="username" placeholder="请输入用户名">
                 </div>
-                <div id="register-form" style="display:none;">
-                    <input type="text" id="reg-username" placeholder="用户名">
-                    <input type="password" id="reg-password" placeholder="密码">
-                    <input type="text" id="reg-nickname" placeholder="昵称">
-                    <div class="button-group">
-                        <button onclick="register()">注册</button>
-                        <button onclick="showLogin()" class="secondary">返回登录</button>
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" id="password" placeholder="请输入密码">
+                </div>
+                <button onclick="login()">登录</button>
+                <button onclick="showRegister()" style="margin-top: 10px; background-color: #95a5a6;">注册</button>
+                <p id="login-message" class="message"></p>
+            </div>
+        </div>
+
+        <div id="register-screen" style="display: none;">
+            <div class="login-section">
+                <h2>注册</h2>
+                <div class="form-group">
+                    <label for="reg-username">用户名</label>
+                    <input type="text" id="reg-username" placeholder="请输入用户名">
+                </div>
+                <div class="form-group">
+                    <label for="reg-password">密码</label>
+                    <input type="password" id="reg-password" placeholder="请输入密码">
+                </div>
+                <div class="form-group">
+                    <label for="reg-nickname">昵称</label>
+                    <input type="text" id="reg-nickname" placeholder="请输入昵称">
+                </div>
+                <button onclick="register()">注册</button>
+                <button onclick="showLogin()" style="margin-top: 10px; background-color: #95a5a6;">返回登录</button>
+                <p id="register-message" class="message"></p>
+            </div>
+        </div>
+
+        <div id="main-screen" style="display: none;">
+            <header>
+                <div class="header-content">
+                    <h1>共享相册</h1>
+                    <div class="user-info">
+                        <span id="user-display"></span>
+                        <button onclick="logout()" class="logout-btn">退出</button>
                     </div>
-                    <p id="register-message" class="message"></p>
+                </div>
+            </header>
+
+            <nav>
+                <button class="nav-btn active" onclick="showTab('photos', event)">相册</button>
+                <button class="nav-btn" onclick="showTab('albums', event)">相册分类</button>
+                <button class="nav-btn" onclick="showTab('upload', event)">上传</button>
+                <button class="nav-btn admin-only" onclick="showTab('admin', event)" style="display: none;">管理</button>
+            </nav>
+
+            <div id="photos-tab" class="tab-content active">
+                <div class="toolbar">
+                    <div class="filter-group">
+                        <select id="album-filter" onchange="loadPhotos()">
+                            <option value="">所有相册</option>
+                        </select>
+                        <select id="type-filter" onchange="loadPhotos()">
+                            <option value="">全部类型</option>
+                            <option value="photo">照片</option>
+                            <option value="video">视频</option>
+                            <option value="live">实况</option>
+                        </select>
+                    </div>
+                    <div class="selection-tools" style="display: none;">
+                        <span id="selection-count">已选择 0 项</span>
+                        <button onclick="downloadSelected()">下载选中</button>
+                        <button onclick="deleteSelected()" style="background-color: #e74c3c;">删除选中</button>
+                        <button onclick="clearSelection()" style="background-color: #95a5a6;">取消选择</button>
+                    </div>
+                </div>
+                <div id="photo-grid" class="photo-grid"></div>
+            </div>
+
+            <div id="albums-tab" class="tab-content">
+                <div class="toolbar">
+                    <button onclick="showCreateAlbumModal()">创建相册</button>
+                </div>
+                <div id="album-list" class="album-list"></div>
+            </div>
+
+            <div id="upload-tab" class="tab-content">
+                <div class="upload-area">
+                    <input type="file" id="file-input" multiple accept="image/*,video/*" onchange="handleFileSelect(event)" style="display: none;">
+                    <button onclick="document.getElementById('file-input').click()">选择文件</button>
+                    <p>支持批量选择照片、视频</p>
+                    <p>支持JPG、PNG、MP4、MOV等格式</p>
+                </div>
+                <div id="upload-preview" class="upload-preview"></div>
+                <div class="upload-options">
+                    <select id="upload-album">
+                        <option value="">选择相册（可选）</option>
+                    </select>
+                    <input type="text" id="upload-tags" placeholder="标签（用逗号分隔）">
+                    <input type="text" id="upload-description" placeholder="描述（可选）">
+                </div>
+                <button id="upload-btn" onclick="uploadFiles()" disabled>开始上传</button>
+                <div id="upload-progress" class="upload-progress"></div>
+            </div>
+
+            <div id="admin-tab" class="tab-content">
+                <div class="admin-section">
+                    <h3>用户管理</h3>
+                    <div id="user-list" class="user-list"></div>
+                </div>
+                <div class="admin-section">
+                    <h3>活动记录</h3>
+                    <div class="filter-group">
+                        <select id="activity-user-filter" onchange="loadActivities()">
+                            <option value="">所有用户</option>
+                        </select>
+                        <select id="activity-type-filter" onchange="loadActivities()">
+                            <option value="">所有操作</option>
+                            <option value="login">登录</option>
+                            <option value="logout">登出</option>
+                            <option value="upload">上传</option>
+                            <option value="delete">删除</option>
+                            <option value="download">下载</option>
+                        </select>
+                    </div>
+                    <div id="activity-list" class="activity-list"></div>
+                </div>
+                <div class="admin-section">
+                    <h3>统计信息</h3>
+                    <div id="stats-grid" class="stats-grid"></div>
                 </div>
             </div>
         </div>
 
-        <div id="main-screen" class="screen" style="display:none;">
-            <header>
-                <h2>共享相册</h2>
-                <div class="user-info">
-                    <span id="user-display"></span>
-                    <button onclick="logout()" class="logout-btn">退出</button>
-                </div>
-            </header>
-
-            <nav id="main-nav">
-                <button class="nav-btn active" onclick="showTab('photos')">相册</button>
-                <button class="nav-btn" onclick="showTab('albums')">相册分类</button>
-                <button class="nav-btn" onclick="showTab('upload')">上传</button>
-                <button class="nav-btn admin-only" onclick="showTab('admin')" style="display:none;">管理</button>
-            </nav>
-
-            <main>
-                <div id="photos-tab" class="tab-content">
-                    <div class="toolbar">
-                        <div class="filter-group">
-                            <select id="album-filter" onchange="loadPhotos()">
-                                <option value="">所有相册</option>
-                            </select>
-                            <select id="type-filter" onchange="loadPhotos()">
-                                <option value="">全部类型</option>
-                                <option value="photo">照片</option>
-                                <option value="video">视频</option>
-                                <option value="live">实况</option>
-                            </select>
-                        </div>
-                        <div class="selection-tools" style="display:none;">
-                            <span id="selection-count">已选择 0 项</span>
-                            <button onclick="downloadSelected()">下载选中</button>
-                            <button onclick="deleteSelected()" class="danger">删除选中</button>
-                            <button onclick="clearSelection()" class="secondary">取消选择</button>
-                        </div>
-                    </div>
-                    <div id="photo-grid" class="photo-grid"></div>
-                    <div id="photo-pagination" class="pagination"></div>
-                </div>
-
-                <div id="albums-tab" class="tab-content" style="display:none;">
-                    <div class="toolbar">
-                        <button onclick="showCreateAlbumModal()">创建相册</button>
-                    </div>
-                    <div id="album-list" class="album-list"></div>
-                </div>
-
-                <div id="upload-tab" class="tab-content" style="display:none;">
-                    <div class="upload-container">
-                        <div class="upload-area" id="upload-area">
-                            <input type="file" id="file-input" multiple accept="image/*,video/*" onchange="handleFileSelect(event)" style="display:none;">
-                            <button onclick="document.getElementById('file-input').click()">选择文件</button>
-                            <p>支持批量选择照片、视频</p>
-                            <p>支持JPG、PNG、HEIC、MP4、MOV等格式</p>
-                        </div>
-                        <div id="upload-preview" class="upload-preview"></div>
-                        <div class="upload-options">
-                            <select id="upload-album">
-                                <option value="">选择相册（可选）</option>
-                            </select>
-                            <input type="text" id="upload-tags" placeholder="标签（用逗号分隔）">
-                            <input type="text" id="upload-description" placeholder="描述（可选）">
-                        </div>
-                        <button id="upload-btn" onclick="uploadFiles()" disabled>开始上传</button>
-                        <div id="upload-progress" class="upload-progress"></div>
-                    </div>
-                </div>
-
-                <div id="admin-tab" class="tab-content" style="display:none;">
-                    <div class="admin-section">
-                        <h3>用户管理</h3>
-                        <div id="user-list" class="user-list"></div>
-                    </div>
-                    <div class="admin-section">
-                        <h3>活动记录</h3>
-                        <div class="filter-group">
-                            <select id="activity-user-filter" onchange="loadActivities()">
-                                <option value="">所有用户</option>
-                            </select>
-                            <select id="activity-type-filter" onchange="loadActivities()">
-                                <option value="">所有操作</option>
-                                <option value="login">登录</option>
-                                <option value="logout">登出</option>
-                                <option value="upload">上传</option>
-                                <option value="delete">删除</option>
-                                <option value="download">下载</option>
-                            </select>
-                        </div>
-                        <div id="activity-list" class="activity-list"></div>
-                        <div id="activity-pagination" class="pagination"></div>
-                    </div>
-                    <div class="admin-section">
-                        <h3>统计信息</h3>
-                        <div id="stats-grid" class="stats-grid"></div>
-                    </div>
-                </div>
-            </main>
-        </div>
-
-        <div id="viewer-modal" class="viewer-modal" style="display:none;">
+        <div id="viewer-modal" class="viewer-modal">
             <button class="viewer-close" onclick="closeViewer()">×</button>
             <div class="viewer-content">
-                <img id="viewer-image" class="viewer-image" style="display:none;">
+                <img id="viewer-image" class="viewer-image" style="display: none;">
                 <video id="viewer-video" class="viewer-video" controls></video>
             </div>
             <div class="viewer-toolbar">
@@ -145,7 +838,7 @@
                 <button onclick="zoomOut()">缩小</button>
                 <button onclick="resetZoom()">重置</button>
                 <button onclick="downloadCurrent()">下载</button>
-                <button onclick="deleteCurrent()" class="danger">删除</button>
+                <button onclick="deleteCurrent()" style="background-color: #e74c3c;">删除</button>
             </div>
             <div class="viewer-info">
                 <span id="viewer-filename"></span>
@@ -153,12 +846,12 @@
                 <span id="viewer-date"></span>
             </div>
             <div class="viewer-nav">
-                <button onclick="prevPhoto()">上一张</button>
-                <button onclick="nextPhoto()">下一张</button>
+                <button onclick="prevPhoto()">←</button>
+                <button onclick="nextPhoto()">→</button>
             </div>
         </div>
 
-        <div id="album-modal" class="modal" style="display:none;">
+        <div id="album-modal" class="modal">
             <div class="modal-content">
                 <h3 id="album-modal-title">创建相册</h3>
                 <input type="hidden" id="edit-album-id">
@@ -166,12 +859,615 @@
                 <textarea id="album-description" placeholder="相册描述（可选）"></textarea>
                 <div class="button-group">
                     <button onclick="saveAlbum()">保存</button>
-                    <button onclick="closeAlbumModal()" class="secondary">取消</button>
+                    <button onclick="closeAlbumModal()" style="background-color: #95a5a6;">取消</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="/static/js/app.js"></script>
+    <script>
+        // 模拟数据
+        let users = [
+            { id: 1, username: 'admin', nickname: '管理员', role: 'admin', status: 'approved' },
+            { id: 2, username: 'user1', nickname: '用户1', role: 'user', status: 'approved' },
+            { id: 3, username: 'user2', nickname: '用户2', role: 'user', status: 'approved' }
+        ];
+        
+        let albums = [
+            { id: 1, name: '默认相册', description: '所有上传的照片默认存放在此相册' },
+            { id: 2, name: '家庭相册', description: '家庭照片' },
+            { id: 3, name: '旅行相册', description: '旅行照片' }
+        ];
+        
+        let photos = [
+            {
+                id: 1,
+                filename: 'photo1.jpg',
+                original_filename: '风景照片.jpg',
+                media_type: 'photo',
+                file_size: 1024000,
+                uploaded_at: new Date().toISOString(),
+                uploader_id: 1,
+                album_id: 1,
+                thumbnail_url: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20landscape%20photograph%20with%20mountains%20and%20lake&image_size=square',
+                url: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beautiful%20landscape%20photograph%20with%20mountains%20and%20lake&image_size=landscape_16_9'
+            },
+            {
+                id: 2,
+                filename: 'photo2.jpg',
+                original_filename: '海边照片.jpg',
+                media_type: 'photo',
+                file_size: 1536000,
+                uploaded_at: new Date().toISOString(),
+                uploader_id: 2,
+                album_id: 1,
+                thumbnail_url: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beach%20photograph%20with%20ocean%20and%20sunset&image_size=square',
+                url: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=beach%20photograph%20with%20ocean%20and%20sunset&image_size=landscape_16_9'
+            },
+            {
+                id: 3,
+                filename: 'video1.mp4',
+                original_filename: '旅行视频.mp4',
+                media_type: 'video',
+                file_size: 10485760,
+                uploaded_at: new Date().toISOString(),
+                uploader_id: 3,
+                album_id: 3,
+                thumbnail_url: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=travel%20video%20thumbnail%20with%20landmark&image_size=square',
+                url: 'https://samplelib.com/lib/preview/mp4/sample-5s.mp4'
+            }
+        ];
+        
+        let activities = [
+            { id: 1, user_id: 1, action_type: 'login', description: '用户 admin 登录', created_at: new Date().toISOString() },
+            { id: 2, user_id: 2, action_type: 'upload', description: '上传照片 风景照片.jpg', created_at: new Date().toISOString() },
+            { id: 3, user_id: 3, action_type: 'upload', description: '上传视频 旅行视频.mp4', created_at: new Date().toISOString() }
+        ];
+        
+        let currentUser = null;
+        let currentPhotos = [];
+        let selectedPhotos = new Set();
+        let currentPhotoIndex = 0;
+        let zoomLevel = 1;
+        let selectedFiles = [];
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('zh-CN');
+        }
+
+        function showLoginScreen() {
+            document.getElementById('login-screen').style.display = 'block';
+            document.getElementById('register-screen').style.display = 'none';
+            document.getElementById('main-screen').style.display = 'none';
+        }
+
+        function showRegisterScreen() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('register-screen').style.display = 'block';
+            document.getElementById('main-screen').style.display = 'none';
+        }
+
+        function showMainScreen() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('register-screen').style.display = 'none';
+            document.getElementById('main-screen').style.display = 'block';
+        }
+
+        function showRegister() {
+            showRegisterScreen();
+        }
+
+        function showLogin() {
+            showLoginScreen();
+        }
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const messageEl = document.getElementById('login-message');
+            
+            if (!username || !password) {
+                messageEl.textContent = '请填写用户名和密码';
+                return;
+            }
+            
+            // 模拟登录验证
+            if (username === 'admin' && password === 'xxy030913') {
+                currentUser = users[0];
+            } else if (username === 'user1' && password === 'password123') {
+                currentUser = users[1];
+            } else if (username === 'user2' && password === 'password123') {
+                currentUser = users[2];
+            } else {
+                messageEl.textContent = '用户名或密码错误';
+                return;
+            }
+            
+            document.getElementById('user-display').textContent = `${currentUser.nickname} (${currentUser.role === 'admin' ? '管理员' : '用户'})`;
+            
+            if (currentUser.role === 'admin') {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'inline-block');
+            }
+            
+            showMainScreen();
+            loadAlbums();
+            loadPhotos();
+        }
+
+        function register() {
+            const username = document.getElementById('reg-username').value;
+            const password = document.getElementById('reg-password').value;
+            const nickname = document.getElementById('reg-nickname').value;
+            const messageEl = document.getElementById('register-message');
+            
+            if (!username || !password) {
+                messageEl.textContent = '请填写用户名和密码';
+                return;
+            }
+            
+            // 模拟注册
+            const newUser = {
+                id: users.length + 1,
+                username: username,
+                nickname: nickname || username,
+                role: 'user',
+                status: 'approved'
+            };
+            users.push(newUser);
+            
+            messageEl.style.color = '#27ae60';
+            messageEl.textContent = '注册成功，请登录';
+            setTimeout(showLogin, 2000);
+        }
+
+        function logout() {
+            currentUser = null;
+            showLoginScreen();
+        }
+
+        function showTab(tab, event) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(`${tab}-tab`).classList.add('active');
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+            
+            if (tab === 'admin' && currentUser && currentUser.role === 'admin') {
+                loadUsers();
+                loadActivities();
+                loadStats();
+            }
+        }
+
+        function loadAlbums() {
+            const albumFilter = document.getElementById('album-filter');
+            const uploadAlbum = document.getElementById('upload-album');
+            
+            albumFilter.innerHTML = '<option value="">所有相册</option>';
+            uploadAlbum.innerHTML = '<option value="">选择相册（可选）</option>';
+            
+            albums.forEach(album => {
+                albumFilter.innerHTML += `<option value="${album.id}">${album.name}</option>`;
+                uploadAlbum.innerHTML += `<option value="${album.id}">${album.name}</option>`;
+            });
+            
+            // 加载相册列表
+            const albumList = document.getElementById('album-list');
+            albumList.innerHTML = albums.map(album => `
+                <div class="album-card">
+                    <div class="album-cover">
+                        📁
+                    </div>
+                    <div class="album-info">
+                        <h4>${album.name}</h4>
+                        <p>${album.description || '暂无描述'}</p>
+                        <div class="album-actions">
+                            <button onclick="openAlbum(${album.id})" style="background-color: #95a5a6;">查看</button>
+                            <button onclick="showEditAlbumModal(${album.id}, '${album.name}', '${album.description || ''}')" style="background-color: #95a5a6;">编辑</button>
+                            <button onclick="deleteAlbum(${album.id})" style="background-color: #e74c3c;">删除</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showCreateAlbumModal() {
+            document.getElementById('album-modal-title').textContent = '创建相册';
+            document.getElementById('edit-album-id').value = '';
+            document.getElementById('album-name').value = '';
+            document.getElementById('album-description').value = '';
+            document.getElementById('album-modal').style.display = 'flex';
+        }
+
+        function showEditAlbumModal(id, name, description) {
+            document.getElementById('album-modal-title').textContent = '编辑相册';
+            document.getElementById('edit-album-id').value = id;
+            document.getElementById('album-name').value = name;
+            document.getElementById('album-description').value = description;
+            document.getElementById('album-modal').style.display = 'flex';
+        }
+
+        function closeAlbumModal() {
+            document.getElementById('album-modal').style.display = 'none';
+        }
+
+        function saveAlbum() {
+            const id = document.getElementById('edit-album-id').value;
+            const name = document.getElementById('album-name').value;
+            const description = document.getElementById('album-description').value;
+            
+            if (!name) {
+                alert('请输入相册名称');
+                return;
+            }
+            
+            if (id) {
+                // 编辑相册
+                const album = albums.find(a => a.id == id);
+                if (album) {
+                    album.name = name;
+                    album.description = description;
+                }
+            } else {
+                // 创建相册
+                const newAlbum = {
+                    id: albums.length + 1,
+                    name: name,
+                    description: description
+                };
+                albums.push(newAlbum);
+            }
+            
+            closeAlbumModal();
+            loadAlbums();
+        }
+
+        function deleteAlbum(id) {
+            if (!confirm('确定要删除这个相册吗？')) return;
+            albums = albums.filter(a => a.id != id);
+            loadAlbums();
+        }
+
+        function openAlbum(albumId) {
+            document.getElementById('album-filter').value = albumId;
+            loadPhotos();
+        }
+
+        function loadPhotos() {
+            const albumId = document.getElementById('album-filter').value;
+            const mediaType = document.getElementById('type-filter').value;
+            
+            // 筛选照片
+            let filteredPhotos = photos;
+            if (albumId) {
+                filteredPhotos = filteredPhotos.filter(p => p.album_id == albumId);
+            }
+            if (mediaType) {
+                filteredPhotos = filteredPhotos.filter(p => p.media_type == mediaType);
+            }
+            
+            currentPhotos = filteredPhotos;
+            
+            const photoGrid = document.getElementById('photo-grid');
+            if (filteredPhotos.length === 0) {
+                photoGrid.innerHTML = '<p style="text-align:center;color:#666;padding:40px;grid-column:1/-1;">暂无照片</p>';
+                return;
+            }
+            
+            photoGrid.innerHTML = filteredPhotos.map((photo, index) => `
+                <div class="photo-item ${selectedPhotos.has(photo.id) ? 'selected' : ''}" onclick="handlePhotoClick(event, ${photo.id}, ${index})">
+                    <img src="${photo.thumbnail_url}" alt="${photo.original_filename}" loading="lazy">
+                    <div class="checkbox"></div>
+                    ${photo.media_type !== 'photo' ? `<span class="media-type">${photo.media_type === 'video' ? '视频' : '实况'}</span>` : ''}
+                    <div class="overlay">
+                        <div>${(function() { const user = users.find(u => u.id == photo.uploader_id); return user ? user.nickname : '未知'; })()}</div>
+                        <div>${formatDate(photo.uploaded_at)}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function handlePhotoClick(event, photoId, index) {
+            if (event.ctrlKey || event.metaKey) {
+                toggleSelection(photoId);
+            } else {
+                openViewer(index);
+            }
+        }
+
+        function toggleSelection(photoId) {
+            if (selectedPhotos.has(photoId)) {
+                selectedPhotos.delete(photoId);
+            } else {
+                selectedPhotos.add(photoId);
+            }
+            updateSelectionUI();
+        }
+
+        function updateSelectionUI() {
+            const count = selectedPhotos.size;
+            const toolsEl = document.querySelector('.selection-tools');
+            
+            if (count > 0) {
+                toolsEl.style.display = 'flex';
+                document.getElementById('selection-count').textContent = `已选择 ${count} 项`;
+                document.querySelectorAll('.photo-item').forEach(item => {
+                    const id = parseInt(item.getAttribute('onclick').match(/\d+/g)[0]);
+                    if (selectedPhotos.has(id)) {
+                        item.classList.add('selected');
+                    } else {
+                        item.classList.remove('selected');
+                    }
+                });
+            } else {
+                toolsEl.style.display = 'none';
+            }
+        }
+
+        function clearSelection() {
+            selectedPhotos.clear();
+            updateSelectionUI();
+            loadPhotos();
+        }
+
+        function openViewer(index) {
+            currentPhotoIndex = index;
+            const photo = currentPhotos[index];
+            
+            zoomLevel = 1;
+            
+            const imageEl = document.getElementById('viewer-image');
+            const videoEl = document.getElementById('viewer-video');
+            
+            if (photo.media_type === 'video') {
+                imageEl.style.display = 'none';
+                videoEl.style.display = 'block';
+                videoEl.src = photo.url;
+                videoEl.play();
+            } else {
+                videoEl.style.display = 'none';
+                imageEl.style.display = 'block';
+                imageEl.src = photo.url;
+                imageEl.style.transform = 'scale(1)';
+            }
+            
+            document.getElementById('viewer-filename').textContent = photo.original_filename;
+            document.getElementById('viewer-uploader').textContent = `上传者: ${users.find(u => u.id == photo.uploader_id)?.nickname || '未知'}`;
+            document.getElementById('viewer-date').textContent = formatDate(photo.uploaded_at);
+            
+            document.getElementById('viewer-modal').style.display = 'flex';
+        }
+
+        function closeViewer() {
+            document.getElementById('viewer-modal').style.display = 'none';
+            document.getElementById('viewer-video').pause();
+        }
+
+        function zoomIn() {
+            zoomLevel += 0.2;
+            document.getElementById('viewer-image').style.transform = `scale(${zoomLevel})`;
+        }
+
+        function zoomOut() {
+            if (zoomLevel > 0.5) {
+                zoomLevel -= 0.2;
+                document.getElementById('viewer-image').style.transform = `scale(${zoomLevel})`;
+            }
+        }
+
+        function resetZoom() {
+            zoomLevel = 1;
+            document.getElementById('viewer-image').style.transform = 'scale(1)';
+        }
+
+        function prevPhoto() {
+            if (currentPhotoIndex > 0) {
+                currentPhotoIndex--;
+                openViewer(currentPhotoIndex);
+            }
+        }
+
+        function nextPhoto() {
+            if (currentPhotoIndex < currentPhotos.length - 1) {
+                currentPhotoIndex++;
+                openViewer(currentPhotoIndex);
+            }
+        }
+
+        function downloadCurrent() {
+            const photo = currentPhotos[currentPhotoIndex];
+            const link = document.createElement('a');
+            link.href = photo.url;
+            link.download = photo.original_filename;
+            link.click();
+        }
+
+        function deleteCurrent() {
+            if (!confirm('确定要删除这个文件吗？')) return;
+            const photo = currentPhotos[currentPhotoIndex];
+            photos = photos.filter(p => p.id != photo.id);
+            closeViewer();
+            loadPhotos();
+        }
+
+        function downloadSelected() {
+            selectedPhotos.forEach(photoId => {
+                const photo = photos.find(p => p.id == photoId);
+                if (photo) {
+                    const link = document.createElement('a');
+                    link.href = photo.url;
+                    link.download = photo.original_filename;
+                    link.click();
+                }
+            });
+        }
+
+        function deleteSelected() {
+            if (!confirm('确定要删除选中的文件吗？')) return;
+            photos = photos.filter(p => !selectedPhotos.has(p.id));
+            clearSelection();
+            loadPhotos();
+        }
+
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            selectedFiles = Array.from(files);
+            
+            const preview = document.getElementById('upload-preview');
+            preview.innerHTML = '';
+            
+            selectedFiles.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'preview-item';
+                    previewItem.innerHTML = `
+                        <img src="${e.target.result}" alt="${file.name}">
+                        <div class="remove" onclick="removeFile(${index})">&times;</div>
+                    `;
+                    preview.appendChild(previewItem);
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            document.getElementById('upload-btn').disabled = selectedFiles.length === 0;
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            document.getElementById('upload-btn').disabled = selectedFiles.length === 0;
+            // 重新生成预览
+            const event = { target: { files: selectedFiles } };
+            handleFileSelect(event);
+        }
+
+        function uploadFiles() {
+            const albumId = document.getElementById('upload-album').value;
+            const tags = document.getElementById('upload-tags').value;
+            const description = document.getElementById('upload-description').value;
+            
+            // 模拟上传
+            const progressEl = document.getElementById('upload-progress');
+            progressEl.innerHTML = `
+                <div class="progress-bar">
+                    <div class="fill" style="width: 0%"></div>
+                </div>
+                <p style="text-align: center; margin-top: 10px;">上传中...</p>
+            `;
+            
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                document.querySelector('.progress-bar .fill').style.width = `${progress}%`;
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        progressEl.innerHTML = '<p style="text-align: center; margin-top: 10px; color: #27ae60;">上传成功！</p>';
+                        
+                        // 模拟添加到相册
+                        selectedFiles.forEach(file => {
+                            const newPhoto = {
+                                id: photos.length + 1,
+                                filename: file.name,
+                                original_filename: file.name,
+                                media_type: file.type.startsWith('image/') ? 'photo' : 'video',
+                                file_size: file.size,
+                                uploaded_at: new Date().toISOString(),
+                                uploader_id: currentUser.id,
+                                album_id: albumId || 1,
+                                thumbnail_url: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=photo%20thumbnail&image_size=square',
+                                url: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=uploaded%20photo&image_size=landscape_16_9'
+                            };
+                            photos.push(newPhoto);
+                        });
+                        
+                        // 清空选择
+                        selectedFiles = [];
+                        document.getElementById('upload-preview').innerHTML = '';
+                        document.getElementById('upload-btn').disabled = true;
+                        document.getElementById('upload-album').value = '';
+                        document.getElementById('upload-tags').value = '';
+                        document.getElementById('upload-description').value = '';
+                        
+                        // 刷新相册
+                        loadPhotos();
+                    }, 1000);
+                }
+            }, 300);
+        }
+
+        function loadUsers() {
+            const userList = document.getElementById('user-list');
+            userList.innerHTML = users.map(user => `
+                <div class="user-item">
+                    <div class="user-info">
+                        <span class="username">${user.username}</span>
+                        <span class="role ${user.role}">${user.role === 'admin' ? '管理员' : '用户'}</span>
+                        <span class="status ${user.status}">${user.status === 'approved' ? '已批准' : user.status === 'pending' ? '待审核' : '已拒绝'}</span>
+                    </div>
+                    <div>
+                        <span>${user.nickname}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadActivities() {
+            const userFilter = document.getElementById('activity-user-filter');
+            const typeFilter = document.getElementById('activity-type-filter');
+            
+            // 加载用户筛选
+            userFilter.innerHTML = '<option value="">所有用户</option>';
+            users.forEach(user => {
+                userFilter.innerHTML += `<option value="${user.id}">${user.username}</option>`;
+            });
+            
+            // 筛选活动
+            let filteredActivities = activities;
+            const selectedUser = userFilter.value;
+            const selectedType = typeFilter.value;
+            
+            if (selectedUser) {
+                filteredActivities = filteredActivities.filter(a => a.user_id == selectedUser);
+            }
+            if (selectedType) {
+                filteredActivities = filteredActivities.filter(a => a.action_type == selectedType);
+            }
+            
+            const activityList = document.getElementById('activity-list');
+            activityList.innerHTML = filteredActivities.map(activity => `
+                <div class="activity-item">
+                    <div class="action">${activity.description}</div>
+                    <div class="meta">${formatDate(activity.created_at)}</div>
+                </div>
+            `).join('');
+        }
+
+        function loadStats() {
+            const statsGrid = document.getElementById('stats-grid');
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="value">${users.length}</div>
+                    <div class="label">总用户数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">${photos.length}</div>
+                    <div class="label">总文件数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">${albums.length}</div>
+                    <div class="label">相册数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">${activities.length}</div>
+                    <div class="label">活动记录</div>
+                </div>
+            `;
+        }
+    </script>
 </body>
 </html>
